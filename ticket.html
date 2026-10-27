@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventKita - Discover Amazing Events</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <div id="header-placeholder"></div>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-2xl mx-auto mt-10 px-4 pb-16 w-full">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-extrabold text-slate-900">E-Ticket Kamu</h1>
+            <p class="text-slate-500 mt-1">Tunjukkan tiket ini kepada panitia saat hari-H.</p>
+        </div>
+
+        <!-- Card Tiket -->
+        <div id="ticket-card" class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200 relative hidden">
+            <!-- Bagian Atas (Warna) -->
+            <div class="bg-blue-600 p-8 text-white text-center">
+                <h2 id="ticket-event-title" class="text-2xl font-bold mb-1">Loading...</h2>
+                <p id="ticket-event-date" class="text-blue-100 text-sm">...</p>
+            </div>
+
+            <!-- Bagian Tengah (Detail) -->
+            <div class="p-6 md:p-8">
+                <div class="grid grid-cols-2 gap-6 mb-8">
+                    <div>
+                        <p class="text-xs text-slate-400 font-semibold uppercase mb-1">Nama Peserta</p>
+                        <p id="ticket-user-name" class="font-bold text-slate-900">...</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 font-semibold uppercase mb-1">Status</p>
+                        <span id="ticket-status" class="px-3 py-1 rounded-full text-xs font-bold">...</span>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 font-semibold uppercase mb-1">Lokasi</p>
+                        <p id="ticket-location" class="font-bold text-slate-900">...</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 font-semibold uppercase mb-1">Harga</p>
+                        <p id="ticket-price" class="font-bold text-slate-900">...</p>
+                    </div>
+                </div>
+
+                <!-- Kode Tiket -->
+                <div class="bg-slate-50 border-2 border-dashed border-slate-300 rounded-2xl p-6 text-center">
+                    <p class="text-sm text-slate-500 mb-2">Kode Registrasi</p>
+                    <p id="ticket-code" class="text-2xl md:text-4xl font-mono font-extrabold tracking-widest text-slate-800 break-all">...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-state" class="text-center py-12 text-slate-500">
+            <svg class="animate-spin h-8 w-8 mx-auto text-blue-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            Memuat tiket...
+        </div>
+
+        <div class="text-center mt-8">
+            <a href="dashboard-user.html" class="text-blue-600 font-semibold hover:underline">&larr; Kembali ke Dashboard</a>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="config.js"></script>
+    <script>
+        const userSession = JSON.parse(localStorage.getItem('user_session'));
+
+        // Proteksi Halaman
+        if (!userSession) {
+            window.location.href = 'user-login.html';
+        }
+
+        function logout() {
+            localStorage.removeItem('user_session');
+            window.location.href = 'index.html';
+        }
+
+        // Ambil kode dari URL (?kode=EVT-XXXX)
+        const urlParams = new URLSearchParams(window.location.search);
+        const kodeReg = urlParams.get('kode');
+
+        async function fetchTicketDetail() {
+            if (!kodeReg) {
+                alert("Kode tiket tidak ditemukan!");
+                window.location.href = 'dashboard-user.html';
+                return;
+            }
+
+            try {
+                // Kita panggil data registrasi user, lalu filter berdasarkan kode
+                const response = await fetch(`${API_URL}?action=getRegistrasiUser&userId=${userSession.id}`);
+                const text = await response.text();
+                const data = JSON.parse(text.replace(/^\)\]\}'\n/, ''));
+                
+                const tiket = data.find(t => t.kode_registrasi === kodeReg);
+
+                if (!tiket) {
+                    alert("Tiket tidak ditemukan atau bukan milik Anda.");
+                    window.location.href = 'dashboard-user.html';
+                    return;
+                }
+
+                renderTicket(tiket);
+            } catch (error) {
+                console.error(error);
+                document.getElementById('loading-state').innerText = "Gagal memuat tiket.";
+            }
+        }
+
+        function renderTicket(tiket) {
+            // Format tanggal
+            const date = new Date(tiket.event_tanggal).toLocaleDateString('id-ID', {
+                weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+            });
+
+            // Set Data ke HTML
+            document.getElementById('ticket-event-title').innerText = tiket.event_judul;
+            document.getElementById('ticket-event-date').innerText = date;
+            document.getElementById('ticket-user-name').innerText = userSession.name;
+            document.getElementById('ticket-location').innerText = tiket.event_lokasi || '-';
+            document.getElementById('ticket-price').innerText = tiket.event_harga == 0 ? 'Gratis' : 'Rp ' + parseInt(tiket.event_harga).toLocaleString('id-ID');
+            document.getElementById('ticket-code').innerText = tiket.kode_registrasi;
+
+            // Logika Warna Status
+            const statusBadge = document.getElementById('ticket-status');
+            if(tiket.status === 'pending') {
+                statusBadge.innerText = "MENUNGGU VERIFIKASI";
+                statusBadge.className = "bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-bold";
+            } else if(tiket.status === 'diterima') {
+                statusBadge.innerText = "TERVERIFIKASI";
+                statusBadge.className = "bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold";
+            } else {
+                statusBadge.innerText = "DITOLAK";
+                statusBadge.className = "bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold";
+            }
+
+            // Sembunyikan loading, tampilkan card
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('ticket-card').classList.remove('hidden');
+        }
+
+        fetchTicketDetail();
+    </script>
+</body>
+</html>

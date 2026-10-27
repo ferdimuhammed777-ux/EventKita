@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login User - EventKita</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <div id="header-placeholder"></div>
+
+    <main class="flex-grow flex items-center justify-center p-4 py-12 w-full">
+        <div class="flex flex-col md:flex-row w-full max-w-5xl bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
+            
+            <!-- Kiri: Ilustrasi (Sembunyi di HP) -->
+            <div class="hidden md:flex md:w-1/2 bg-gradient-to-br from-blue-600 to-indigo-800 p-10 flex-col justify-center relative overflow-hidden">
+                <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+                <div class="relative z-10 text-white text-center">
+                    <h2 class="text-3xl font-bold mb-4">Selamat Datang!</h2>
+                    <p class="text-blue-100 mb-8 leading-relaxed">Masuk untuk melihat tiket event kamu, mengelola jadwal, dan menemukan event seru lainnya.</p>
+                    <div class="w-full h-48 bg-white/10 rounded-xl border border-white/20 flex items-center justify-center backdrop-blur-sm">
+                        <span class="text-white/50 text-sm">[ Ilustrasi Placeholder ]</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kanan: Form -->
+            <div class="w-full md:w-1/2 p-8 md:p-12">
+                <div class="mb-8 text-center md:text-left">
+                    <h1 class="text-2xl font-extrabold text-slate-900">Login User</h1>
+                    <p class="text-sm text-slate-500 mt-1">Masukkan email dan password akunmu.</p>
+                </div>
+
+                <div id="error-message" class="hidden bg-red-50 text-red-600 p-4 rounded-lg mb-6 text-sm border border-red-100 text-center"></div>
+
+                <form id="loginForm" class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Email Address</label>
+                        <input type="email" id="email" class="w-full border border-slate-300 px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none" placeholder="nama@email.com" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Password</label>
+                        <input type="password" id="password" class="w-full border border-slate-300 px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" id="btn-submit" class="w-full bg-slate-900 text-white font-bold py-3 rounded-lg hover:bg-slate-800 transition-colors shadow-md mt-2">
+                        Sign In
+                    </button>
+                </form>
+                
+                <p class="text-center text-sm text-slate-500 mt-8">
+                    Belum punya akun? <a href="register.html" class="text-blue-600 font-semibold hover:underline">Daftar sekarang</a>
+                </p>
+                <p class="text-center text-sm text-slate-500 mt-2">
+                    Login sebagai Admin? <a href="admin-login.html" class="text-blue-600 font-semibold hover:underline">Klik di sini</a>
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="config.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('btn-submit');
+            const errorDiv = document.getElementById('error-message');
+
+            btn.innerHTML = 'Memproses...';
+            btn.disabled = true;
+            errorDiv.classList.add('hidden');
+
+            try {
+                const response = await fetch(`${API_URL}?action=loginUser&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`);
+                const text = await response.text();
+                const data = JSON.parse(text.replace(/^\)\]\}'\n/, ''));
+
+                if (data.status === 'success') {
+                    localStorage.setItem('user_session', JSON.stringify(data.user));
+                    window.location.href = 'dashboard-user.html';
+                } else {
+                    errorDiv.innerText = data.message;
+                    errorDiv.classList.remove('hidden');
+                }
+            } catch (error) {
+                errorDiv.innerText = "Terjadi kesalahan sistem. Coba lagi nanti.";
+                errorDiv.classList.remove('hidden');
+            } finally {
+                btn.innerHTML = 'Sign In';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

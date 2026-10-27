@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventKita - Discover Amazing Events</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <div id="header-placeholder"></div>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto mt-10 px-4 sm:px-6 lg:px-8 pb-16 w-full flex flex-col md:flex-row gap-8">
+        
+        <!-- Sidebar -->
+        <div class="w-full md:w-1/4">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex items-center gap-4 mb-8 pb-6 border-b border-slate-100">
+                    <div id="user-avatar" class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl">U</div>
+                    <div class="overflow-hidden">
+                        <h2 id="user-name" class="font-bold text-slate-900 truncate">Loading...</h2>
+                        <p id="user-email" class="text-xs text-slate-500 truncate">...</p>
+                    </div>
+                </div>
+                <nav class="space-y-2 text-slate-600 text-sm font-medium">
+                    <a href="dashboard-user.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-700 bg-blue-50 font-bold">My Registrations</a>
+                    <button onclick="logout()" class="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-red-50 text-slate-600 hover:text-red-600 transition-colors mt-2">Logout</button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="w-full md:w-3/4">
+            <h1 class="text-3xl font-extrabold text-slate-900 mb-6">Dashboard</h1>
+
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-slate-200 bg-slate-50">
+                    <h2 class="text-xl font-bold text-slate-800">My Registered Events</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
+                        <thead class="text-slate-500 text-xs uppercase font-semibold">
+                            <tr>
+                                <th class="p-5 border-b">Event Name</th>
+                                <th class="p-5 border-b">Reg Code</th>
+                                <th class="p-5 border-b">Status</th>
+                                <th class="p-5 border-b">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body" class="divide-y divide-slate-100">
+                            <tr><td colspan="4" class="p-8 text-center text-slate-500">Memuat data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="config.js"></script>
+    <script>
+        const userSession = JSON.parse(localStorage.getItem('user_session'));
+
+        // Proteksi Halaman
+        if (!userSession) {
+            window.location.href = 'user-login.html';
+        } else {
+            document.getElementById('user-name').innerText = userSession.name;
+            document.getElementById('user-email').innerText = userSession.email;
+            document.getElementById('user-avatar').innerText = userSession.name.charAt(0).toUpperCase();
+        }
+
+        function logout() {
+            localStorage.removeItem('user_session');
+            window.location.href = 'index.html';
+        }
+
+        async function fetchMyEvents() {
+            try {
+                const response = await fetch(`${API_URL}?action=getRegistrasiUser&userId=${userSession.id}`);
+                const text = await response.text();
+                const data = JSON.parse(text.replace(/^\)\]\}'\n/, ''));
+                
+                const tbody = document.getElementById('table-body');
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-slate-500">Belum ada event yang didaftarkan.</td></tr>`;
+                    return;
+                }
+
+                let html = '';
+                data.forEach(reg => {
+                    let statusBadge = '';
+                    if(reg.status === 'pending') statusBadge = `<span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-bold">PENDING</span>`;
+                    else if(reg.status === 'diterima') statusBadge = `<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">ACCEPTED</span>`;
+                    else statusBadge = `<span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">REJECTED</span>`;
+
+                    html += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-5">
+                            <div class="font-bold text-slate-900">${reg.event_judul}</div>
+                        </td>
+                        <td class="p-5">
+                            <span class="bg-slate-100 text-slate-700 font-mono text-sm px-2.5 py-1 rounded-md border border-slate-200">${reg.kode_registrasi}</span>
+                        </td>
+                        <td class="p-5">${statusBadge}</td>
+                        <td class="p-5">
+                            <a href="ticket.html?kode=${reg.kode_registrasi}" class="inline-block bg-white border border-slate-300 text-slate-700 px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors">View Ticket</a>
+                        </td>
+                    </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        if(userSession) fetchMyEvents();
+    </script>
+</body>
+</html>
