@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - EventKita</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- 1. HEADER -->
+    <div id="header-placeholder"></div>
+
+    <!-- 2. KONTEN UTAMA -->
+    <main class="flex-grow max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 w-full flex flex-col md:flex-row gap-8">
+        
+        <!-- Sidebar Admin -->
+        <div class="w-full md:w-64">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h2 class="text-lg font-extrabold text-slate-900 mb-6 border-b pb-4">Admin Panel</h2>
+                <nav class="space-y-2 text-sm font-medium text-slate-600">
+                    <!-- Menu Aktif -->
+                    <a href="dashboard-admin.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-700 bg-blue-50 font-bold">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                        Dashboard
+                    </a>
+                    <a href="create-event.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-50 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Tambah Event
+                    </a>
+                    <!-- Link ke halaman Verifikasi (Jika dipisah) atau Scroll ke tabel -->
+                    <a href="#tabel-pendaftar" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-50 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Verifikasi Pendaftar
+                    </a>
+                    <div class="pt-4 mt-4 border-t">
+                        <button onclick="logoutAdmin()" class="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-600 hover:bg-red-50 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                            Logout
+                        </button>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="w-full md:w-3/4">
+            <h1 class="text-3xl font-extrabold text-slate-900 mb-6">Dashboard Admin</h1>
+
+            <!-- Stat Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-sm font-semibold text-slate-500 mb-1">Total Events</p>
+                    <h3 id="stat-events" class="text-4xl font-extrabold text-blue-600">0</h3>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-sm font-semibold text-slate-500 mb-1">Total Registrations</p>
+                    <h3 id="stat-pendaftar" class="text-4xl font-extrabold text-slate-800">0</h3>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-sm font-semibold text-slate-500 mb-1">Pending Approvals</p>
+                    <h3 id="stat-pending" class="text-4xl font-extrabold text-amber-500">0</h3>
+                </div>
+            </div>
+
+            <!-- Tabel Event Terbaru -->
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-8">
+                <div class="p-6 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-slate-800">Event Terbaru</h2>
+                    <a href="create-event.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 shadow-sm transition-colors">+ Buat Baru</a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
+                        <thead class="text-slate-500 text-xs uppercase tracking-wider font-semibold">
+                            <tr>
+                                <th class="p-5 border-b">Judul Event</th>
+                                <th class="p-5 border-b">Tanggal</th>
+                                <th class="p-5 border-b">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-events" class="divide-y divide-slate-100">
+                            <tr><td colspan="3" class="p-5 text-center text-slate-500">Memuat data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tabel Verifikasi Pendaftar -->
+            <div id="tabel-pendaftar" class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-slate-200 bg-slate-50">
+                    <h2 class="text-xl font-bold text-slate-800">Verifikasi Pendaftar</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[700px]">
+                        <thead class="text-slate-500 text-xs uppercase font-semibold">
+                            <tr>
+                                <th class="p-5 border-b">Peserta</th>
+                                <th class="p-5 border-b">Event</th>
+                                <th class="p-5 border-b">Status</th>
+                                <th class="p-5 border-b text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-registrasi" class="divide-y divide-slate-100">
+                            <tr><td colspan="4" class="p-8 text-center text-slate-500">Memuat data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- 3. FOOTER -->
+    <div id="footer-placeholder"></div>
+
+    <!-- 4. PANGGIL CONFIG.JS -->
+    <script src="config.js"></script>
+    
+    <!-- 5. SCRIPT KHUSUS HALAMAN -->
+    <script>
+        // --- PROTEKSI HALAMAN ---
+        const adminSession = JSON.parse(localStorage.getItem('admin_session'));
+        if (!adminSession) {
+            window.location.href = 'admin-login.html';
+        }
+
+        // --- FETCH DATA DASHBOARD ---
+        async function fetchAdminData() {
+            try {
+                const response = await fetch(`${API_URL}?action=getAdminData`);
+                const text = await response.text();
+                const data = JSON.parse(text.replace(/^\)\]\}'\n/, ''));
+
+                // 1. Update Statistik
+                document.getElementById('stat-events').innerText = data.total_events;
+                document.getElementById('stat-pendaftar').innerText = data.total_registrasi;
+                document.getElementById('stat-pending').innerText = data.total_pending;
+
+                // 2. Render Tabel Event Terbaru
+                const tbodyEvents = document.getElementById('table-events');
+                if (data.recent_events.length === 0) {
+                    tbodyEvents.innerHTML = `<tr><td colspan="3" class="p-5 text-center text-slate-500">Belum ada event.</td></tr>`;
+                } else {
+                    let htmlEvents = '';
+                    data.recent_events.forEach(ev => {
+                        const date = new Date(ev.tanggal_mulai).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                        const statusBadge = ev.status === 'publish' 
+                            ? `<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase">Published</span>`
+                            : `<span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold uppercase">Draft</span>`;
+                        
+                        htmlEvents += `
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-5 font-bold text-slate-800">${ev.judul}</td>
+                                <td class="p-5 text-sm text-slate-600">${date}</td>
+                                <td class="p-5">${statusBadge}</td>
+                            </tr>
+                        `;
+                    });
+                    tbodyEvents.innerHTML = htmlEvents;
+                }
+
+                // 3. Render Tabel Verifikasi Pendaftar
+                const tbodyReg = document.getElementById('table-registrasi');
+                if (data.registrasis.length === 0) {
+                    tbodyReg.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-slate-500">Belum ada pendaftar.</td></tr>`;
+                } else {
+                    let htmlReg = '';
+                    data.registrasis.forEach(reg => {
+                        let statusBadge = '';
+                        let actionBtns = '';
+
+                        if(reg.status === 'pending') {
+                            statusBadge = `<span class="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs font-bold">PENDING</span>`;
+                            actionBtns = `
+                                <button onclick="verifikasi(${reg.id}, 'diterima')" class="bg-green-500 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-green-600 mb-1">Terima</button>
+                                <button onclick="verifikasi(${reg.id}, 'ditolak')" class="bg-red-500 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-red-600">Tolak</button>
+                            `;
+                        } else if(reg.status === 'diterima') {
+                            statusBadge = `<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">ACCEPTED</span>`;
+                            actionBtns = `<span class="text-slate-400 text-xs italic">Sudah diverifikasi</span>`;
+                        } else {
+                            statusBadge = `<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">REJECTED</span>`;
+                            actionBtns = `<span class="text-slate-400 text-xs italic">Sudah diverifikasi</span>`;
+                        }
+
+                        htmlReg += `
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-4">
+                                <div class="font-bold text-slate-800">${reg.nama_peserta}</div>
+                                <div class="text-xs text-slate-500">${reg.kode_registrasi}</div>
+                            </td>
+                            <td class="p-4 text-sm text-slate-700">${reg.judul_event}</td>
+                            <td class="p-4">${statusBadge}</td>
+                            <td class="p-4 text-center">${actionBtns}</td>
+                        </tr>
+                        `;
+                    });
+                    tbodyReg.innerHTML = htmlReg;
+                }
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('table-registrasi').innerHTML = `<tr><td colspan="4" class="p-8 text-center text-red-500">Gagal memuat data dari server.</td></tr>`;
+            }
+        }
+
+        // Fungsi Verifikasi
+        async function verifikasi(regId, status) {
+            if(!confirm(`Yakin ingin menandai pendaftaran ini sebagai ${status.toUpperCase()}?`)) return;
+
+            try {
+                const response = await fetch(`${API_URL}?action=verifikasi&regId=${regId}&status=${status}`);
+                const text = await response.text();
+                const data = JSON.parse(text.replace(/^\)\]\}'\n/, ''));
+                
+                if(data.status === 'success') {
+                    alert('Status berhasil diupdate!');
+                    fetchAdminData(); // Refresh data tabel & statistik
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                alert("Gagal memverifikasi.");
+            }
+        }
+
+        // Jalankan fungsi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', fetchAdminData);
+    </script>
+</body>
+</html>

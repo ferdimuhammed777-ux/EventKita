@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - EventKita</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- 1. HEADER -->
+    <div id="header-placeholder"></div>
+
+    <!-- 2. KONTEN UTAMA (Split Screen) -->
+    <main class="flex-grow flex items-center justify-center p-4 py-12 w-full">
+        <div class="flex flex-col-reverse md:flex-row w-full max-w-5xl bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
+            
+            <!-- Kiri: Form Register -->
+            <div class="w-full md:w-1/2 p-8 md:p-12">
+                <div class="mb-8 text-center md:text-left">
+                    <h1 class="text-2xl font-extrabold text-slate-900">Create Account</h1>
+                    <p class="text-sm text-slate-500 mt-1">Lengkapi data dirimu di bawah ini.</p>
+                </div>
+
+                <div id="error-message" class="hidden bg-red-50 text-red-600 p-4 rounded-lg mb-6 text-sm border border-red-100 text-center"></div>
+
+                <form id="registerForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Nama Lengkap</label>
+                        <input type="text" id="name" class="w-full border border-slate-300 px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Nama Kamu" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Email Address</label>
+                        <input type="email" id="email" class="w-full border border-slate-300 px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="nama@email.com" required>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">No. HP</label>
+                            <input type="tel" id="no_hp" class="w-full border border-slate-300 px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="0812xxxx" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Alamat</label>
+                            <input type="text" id="alamat" class="w-full border border-slate-300 px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Kota Kamu" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Password</label>
+                        <input type="password" id="password" class="w-full border border-slate-300 px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="••••••••" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Konfirmasi Password</label>
+                        <input type="password" id="password_confirmation" class="w-full border border-slate-300 px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" id="btn-submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-md mt-4">
+                        Daftar Akun
+                    </button>
+                </form>
+                
+                <p class="text-center text-sm text-slate-500 mt-6">
+                    Sudah punya akun? <a href="user-login.html" class="text-blue-600 font-semibold hover:underline">Login di sini</a>
+                </p>
+            </div>
+
+            <!-- Kanan: Ilustrasi -->
+            <div class="hidden md:flex md:w-1/2 bg-gradient-to-br from-indigo-600 to-blue-800 p-10 flex-col justify-center relative overflow-hidden">
+                <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+                <div class="relative z-10 text-white text-center">
+                    <h2 class="text-3xl font-bold mb-4">Mulai Petualanganmu!</h2>
+                    <p class="text-indigo-100 mb-8 leading-relaxed">Buat akun gratis dan dapatkan akses ke berbagai event eksklusif di sekitarmu.</p>
+                    <div class="w-full h-48 bg-white/10 rounded-xl border border-white/20 flex items-center justify-center backdrop-blur-sm">
+                        <span class="text-white/50 text-sm">[ Ilustrasi Placeholder ]</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 3. FOOTER -->
+    <div id="footer-placeholder"></div>
+
+    <!-- 4. CONFIG.JS -->
+    <script src="config.js"></script>
+
+    <!-- 5. SCRIPT REGISTER -->
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const no_hp = document.getElementById('no_hp').value;
+            const alamat = document.getElementById('alamat').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('password_confirmation').value;
+            
+            const btn = document.getElementById('btn-submit');
+            const errorDiv = document.getElementById('error-message');
+
+            errorDiv.classList.add('hidden');
+
+            // Validasi kecocokan password
+            if (password !== confirmPassword) {
+                errorDiv.innerText = "Password dan Konfirmasi Password tidak cocok!";
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            btn.innerHTML = 'Memproses...';
+            btn.disabled = true;
+
+            try {
+                // Panggil API registerUser
+                const url = `${API_URL}?action=registerUser&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}&no_hp=${encodeURIComponent(no_hp)}&alamat=${encodeURIComponent(alamat)}`;
+                const response = await fetch(url);
+                const text = await response.text();
+                const data = JSON.parse(text.replace(/^\)\]\}'\n/, ''));
+
+                if (data.status === 'success') {
+                    alert(data.message);
+                    // Arahkan ke halaman login setelah berhasil
+                    window.location.href = 'user-login.html';
+                } else {
+                    errorDiv.innerText = data.message;
+                    errorDiv.classList.remove('hidden');
+                }
+            } catch (error) {
+                errorDiv.innerText = "Terjadi kesalahan sistem.";
+                errorDiv.classList.remove('hidden');
+            } finally {
+                btn.innerHTML = 'Daftar Akun';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
